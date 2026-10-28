@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شبكات - محاضرة 1 | Network Performance</title>
+<style>
+    :root {
+        --bg-color: #f0f4f8;
+        --card-bg: #ffffff;
+        --text-primary: #1e293b;
+        --text-secondary: #475569;
+        --accent-blue: #3b82f6;
+        --accent-green: #10b981;
+        --accent-purple: #8b5cf6;
+        --accent-orange: #f59e0b;
+        --accent-pink: #ec4899;
+        --border-light: #e2e8f0;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-primary);
+        line-height: 1.7;
+        padding: 20px 10px;
+    }
+
+    .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: var(--card-bg);
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+    }
+
+    header {
+        background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
+        color: white;
+        padding: 40px 30px;
+        text-align: center;
+    }
+
+    header h1 {
+        font-size: clamp(1.4rem, 4vw, 2.2rem);
+        margin-bottom: 8px;
+        font-weight: 700;
+    }
+
+    header p {
+        font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+        opacity: 0.95;
+        font-weight: 300;
+    }
+
+    .content {
+        padding: 30px 25px;
+    }
+
+    .section {
+        margin-bottom: 35px;
+        background: #ffffff;
+        border-radius: 16px;
+        border: 1px solid var(--border-light);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .section:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(59, 130, 246, 0.1);
+    }
+
+    .section.blue { border-top: 4px solid var(--accent-blue); }
+    .section.green { border-top: 4px solid var(--accent-green); }
+    .section.purple { border-top: 4px solid var(--accent-purple); }
+    .section.orange { border-top: 4px solid var(--accent-orange); }
+    .section.pink { border-top: 4px solid var(--accent-pink); }
+
+    .lang-block {
+        padding: 25px;
+    }
+
+    .lang-ar {
+        background: #ffffff;
+    }
+
+    .divider {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, var(--border-light), transparent);
+        margin: 0 25px;
+    }
+
+    .lang-en {
+        background: #f8fafc;
+        direction: ltr;
+        text-align: left;
+    }
+
+    .lang-block h2 {
+        font-size: clamp(1.2rem, 3vw, 1.5rem);
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .lang-ar h2 { color: #1e40af; }
+    .lang-en h2 { color: #1e40af; }
+
+    .section.green .lang-ar h2, .section.green .lang-en h2 { color: #047857; }
+    .section.purple .lang-ar h2, .section.purple .lang-en h2 { color: #6d28d9; }
+    .section.orange .lang-ar h2, .section.orange .lang-en h2 { color: #b45309; }
+    .section.pink .lang-ar h2, .section.pink .lang-en h2 { color: #be185d; }
+
+    .lang-block p, .lang-block li {
+        color: var(--text-secondary);
+        font-size: clamp(0.95rem, 2vw, 1.05rem);
+        margin-bottom: 12px;
+    }
+
+    .lang-block ul {
+        padding-right: 20px;
+        margin-bottom: 15px;
+    }
+    .lang-en ul {
+        padding-right: 0;
+        padding-left: 20px;
+    }
+
+    .highlight {
+        background: linear-gradient(120deg, #fef08a 0%, #fde047 100%);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+        color: #713f12;
+    }
+
+    .example-box {
+        background: #fffbeb;
+        border-right: 4px solid var(--accent-orange);
+        padding: 18px 20px;
+        border-radius: 10px;
+        margin: 18px 0;
+    }
+    .lang-en .example-box {
+        border-right: none;
+        border-left: 4px solid var(--accent-orange);
+    }
+
+    .example-title {
+        font-weight: 700;
+        color: #92400e;
+        margin-bottom: 10px;
+        font-size: 1.05rem;
+    }
+
+    .solution-box {
+        background: #ecfdf5;
+        border-right: 4px solid var(--accent-green);
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin: 12px 0;
+        font-family: 'Courier New', Courier, monospace;
+        color: #065f46;
+        direction: ltr;
+        text-align: left;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        overflow-x: auto;
+    }
+    .lang-en .solution-box {
+        border-right: none;
+        border-left: 4px solid var(--accent-green);
+    }
+
+    .note-box {
+        background: #eff6ff;
+        border-right: 4px solid var(--accent-blue);
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin: 15px 0;
+        color: #1e40af;
+        font-style: italic;
+    }
+    .lang-en .note-box {
+        border-right: none;
+        border-left: 4px solid var(--accent-blue);
+    }
+
+    .formula {
+        background: #f1f5f9;
+        padding: 12px 18px;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: 700;
+        color: #0f172a;
+        margin: 15px 0;
+        font-size: 1.05rem;
+        direction: ltr;
+        font-family: 'Courier New', monospace;
+        border: 1px dashed #94a3b8;
+    }
+
+    footer {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        color: #e2e8f0;
+        padding: 30px 20px;
+        text-align: center;
+    }
+
+    footer p {
+        margin: 6px 0;
+        font-size: clamp(0.9rem, 2vw, 1.05rem);
+    }
+
+    footer .author {
+        color: #7dd3fc;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    footer .tech {
+        color: #86efac;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 768px) {
+        body { padding: 10px 5px; }
+        .content { padding: 20px 15px; }
+        .lang-block { padding: 18px 15px; }
+        header { padding: 30px 20px; }
+        .divider { margin: 0 15px; }
+    }
+
+    @media (max-width: 480px) {
+        .lang-block { padding: 15px 12px; }
+        .example-box, .solution-box, .note-box { padding: 12px 14px; }
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <header>
+        <h1>📡 شبكات - المحاضرة الأولى</h1>
+        <p>Network Performance | أداء الشبكة</p>
+    </header>
+
+    <div class="content">
+
+        <!-- Bandwidth -->
+        <div class="section blue">
+            <div class="lang-block lang-ar">
+                <h2>📊 عرض النطاق الترددي (Bandwidth)</h2>
+                <p>إحدى الخصائص التي تقيس أداء الشبكة، ويُستخدم المصطلح في سياقين مختلفين بقياسين مختلفين:</p>
+                <ul>
+                    <li><strong>بالهرتز (Hertz):</strong> مدى الترددات الموجودة في الإشارة المركبة أو التي يمكن للقناة تمريرها (مثال: عرض نطاق خط الهاتف هو 4 كيلوهرتز).</li>
+                    <li><strong>بالبت لكل ثانية (Bits per Second):</strong> عدد البتات التي يمكن للقناة أو الرابط إرسالها (مثال: عرض نطاق شبكة Fast Ethernet هو 100 Mbps كحد أقصى).</li>
+                </ul>
+            </div>
+            <div class="divider"></div>
+            <div class="lang-block lang-en">
+                <h2>📊 Bandwidth</h2>
+                <p>A characteristic that measures network performance, used in two different contexts with two different measuring values:</p>
+                <ul>
+                    <li><strong>In Hertz:</strong> The range of frequencies contained in a composite signal or that a channel can pass (e.g., subscriber telephone line bandwidth is 4 kHz).</li>
+                    <li><strong>In Bits per Second:</strong> The number of bits per second that a channel, link, or network can transmit (e.g., Fast Ethernet network bandwidth is a maximum of 100 Mbps).</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Throughput -->
+        <div class="section green">
+            <div class="lang-block lang-ar">
+                <h2>🚀 الإنتاجية (Throughput)</h2>
+                <p>مقياس لسرعة إرسال البيانات <span class="highlight">فعلياً</span> عبر الشبكة. على الرغم من تشابهه مع عرض النطاق، إلا أن:</p>
+                <ul>
+                    <li>عرض النطاق (Bandwidth) هو قياس <strong>احتمالي (Potential)</strong> للرابط.</li>
+                    <li>الإنتاجية (Throughput) هي قياس <strong>فعلي (Actual)</strong> وهي دائماً أقل من عرض النطاق (T < B).</li>
+                </ul>
+                <div class="example-box">
+                    <div class="example-title">💡 مثال محلول:</div>
+                    <p>شبكة بعرض نطاق 10 Mbps تمرر متوسط 12,000 إطار في الدقيقة، كل إطار يحمل 10,000 بت. ما هي الإنتاجية؟</p>
+                    <div class="solution-box">
+Throughput = (12000 × 10000) / 60 seconds<br>
+= (12 × 10⁷) / (6 × 10¹)<br>
+= 2 × 10⁶ bps = <strong>2 Mbps</strong><br>
+(Notice: Throughput is 20% only of the total bandwidth)
+                    </div>
+                </div>
+            </div>
+            <div class="divider"></div>
+            <div class="lang-block lang-en">
+                <h2>🚀 Throughput</h2>
+                <p>A measure of how fast we can <span class="highlight">actually</span> send data through a network. Although it seems similar to bandwidth:</p>
+                <ul>
+                    <li>Bandwidth is a <strong>potential</strong> measurement of a link.</li>
+                    <li>Throughput is an <strong>actual</strong> measurement and is always less than bandwidth (T < B).</li>
+                </ul>
+                <div class="example-box">
+                    <div class="example-title">💡 Solved Example:</div>
+                    <p>A network with 10 Mbps bandwidth passes an average of 12,000 frames per minute, each carrying 10,000 bits. What is the throughput?</p>
+                    <div class="solution-box">
+Throughput = (12000 × 10000) / 60 seconds<br>
+= (12 × 10⁷) / (6 × 10¹)<br>
+= 2 × 10⁶ bps = <strong>2 Mbps</strong><br>
+(Notice: Throughput is 20% only of the total bandwidth)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Latency -->
+        <div class="section purple">
+            <div class="lang-block lang-ar">
+                <h2>⏱️ زمن الوصول / التأخير (Latency / Delay)</h2>
+                <p>الوقت اللازم لوصول الرسالة كاملة من المصدر إلى الوجهة. يتكون من 4 مكونات:</p>
+                <ul>
+                    <li><strong>زمن الانتشار (Propagation Time):</strong> المسافة ÷ سرعة الانتشار.</li>
+                    <li><strong>زمن الإرسال (Transmission Time):</strong> حجم الرسالة ÷ عرض النطاق.</li>
+                    <li><strong>زمن الانتظار (Queuing Time):</strong> الوقت الذي تقضيه الحزمة في المخزن المؤقت (يزداد مع ازدحام الشبكة).</li>
+                    <li><strong>زمن المعالجة (Processing Delay):</strong> الوقت اللازم لفحص الرأس وكشف الأخطاء في الراوتر أو الجهاز المستقبل.</li>
+                </ul>
+                <div class="note-box">
+                    ملاحظة: في الرسائل القصيرة وعرض النطاق العالي، يهيمن زمن الانتشار. أما في الرسائل الطويلة وعرض النطاق المنخفض، يهيمن زمن الإرسال.
+                </div>
+            </div>
+            <div class="divider"></div>
+            <div class="lang-block lang-en">
+                <h2>⏱️ Latency / Delay</h2>
+                <p>The time required for an entire message to completely arrive at the destination. It is made of four components:</p>
+                <ul>
+                    <li><strong>Propagation Time:</strong> Distance / Propagation Speed.</li>
+                    <li><strong>Transmission Time:</strong> Message size / Bandwidth.</li>
+                    <li><strong>Queuing Time:</strong> Time a message is held in the buffer before processing (increases with heavy network traffic).</li>
+                    <li><strong>Processing Delay:</strong> Time required to receive a packet, remove the header, perform error detection, and deliver it.</li>
+                </ul>
+                <div class="note-box">
+                    Note: For short messages and high bandwidth, propagation time is dominant. For long messages and low bandwidth, transmission time is dominant.
+                </div>
+            </div>
+        </div>
+
+        <!-- Bandwidth-Delay Product -->
+        <div class="section orange">
+            <div class="lang-block lang-ar">
+                <h2>🔗 حاصل ضرب عرض النطاق × التأخير</h2>
+                <p>مقياس مهم يمثل <span class="highlight">عدد البتات التي يمكنها ملء الرابط</span>. يمكن تشبيه الرابط بأنبوب ماء: طوله يمثل التأخير، ومقطعه العرضي يمثل عرض النطاق، وحجمه يمثل حاصل الضرب.</p>
+                <p>هذا القياس مهم عند إرسال البيانات على شكل دفعات (Bursts). للاستفادة من أقصى قدرة للرابط ثنائي الاتجاه (Full-Duplex):</p>
+                <div class="formula">
+                    Burst Size = 2 × Bandwidth × Delay
+                </div>
+                <p>يجب أن يرسل المرسل دفعة بهذا الحجم، ثم ينتظر إقرار (Acknowledgment) المستقبل قبل إرسال الدفعة التالية.</p>
+            </div>
+            <div class="divider"></div>
+            <div class="lang-block lang-en">
+                <h2>🔗 Bandwidth-Delay Product</h2>
+                <p>An important metric representing the <span class="highlight">number of bits that can fill the link</span>. The link can be thought of as a pipe: length represents delay, cross-section represents bandwidth, and volume represents the product.</p>
+                <p>This is important when sending data in bursts. To use the maximum capability of a full-duplex channel:</p>
+                <div class="formula">
+                    Burst Size = 2 × Bandwidth × Delay
+                </div>
+                <p>The sender should send a burst of this size, then wait for the receiver's acknowledgment before sending the next burst.</p>
+            </div>
+        </div>
+
+        <!-- Jitter -->
+        <div class="section pink">
+            <div class="lang-block lang-ar">
+                <h2>📉 الاهتزاز (Jitter)</h2>
+                <p>مشكلة تحدث عندما تواجه حزم البيانات المختلفة <strong>تأخيرات مختلفة</strong> أثناء الانتقال، ويكون التطبيق المستخدم في جهة الاستقبال <strong>حساساً للوقت</strong> (مثل بيانات الصوت والفيديو في التطبيقات الحقيقية Real-Time).</p>
+                <div class="example-box">
+                    <div class="example-title">💡 مثال:</div>
+                    <p>إذا كان تأخير الحزمة الأولى 20 ms، والثانية 45 ms، والثالثة 40 ms، فإن التطبيق سيتعرض لمشكلة الـ Jitter.</p>
+                </div>
+            </div>
+            <div class="divider"></div>
+            <div class="lang-block lang-en">
+                <h2>📉 Jitter</h2>
+                <p>A problem that occurs when different data packets encounter <strong>different delays</strong> during transmission, and the application using the data at the receiver site is <strong>time-sensitive</strong> (e.g., audio and video data in Real-Time applications).</p>
+                <div class="example-box">
+                    <div class="example-title">💡 Example:</div>
+                    <p>If the delay for the first packet is 20 ms, the second is 45 ms, and the third is 40 ms, the real-time application endures jitter.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Packet Loss -->
+        <div class="section blue">
+            <div class="lang-block lang-ar">
+                <h2>❌ فقدان الحزم (Packet Loss)</h2>
+                <p>عندما يستقبل الراوتر حزمة أثناء معالجته لحزمة أخرى، يجب تخزينها في <span class="highlight">مخزن الإدخال (Input Buffer)</span>. لكن حجم هذا المخزن محدود.</p>
+                <p>عندما يمتلئ المخزن، يجب إسقاط الحزمة التالية. تأثير ذلك في شبكة الإنترنت هو الحاجة إلى إعادة إرسال الحزمة، مما قد يسبب فيضاناً (Overflow) وفقداناً لمزيد من الحزم. وقد أُجريت دراسات كثيرة في نظرية الطوابير (Queuing Theory) لمنع ذلك.</p>
+            </div>
+            <div class="divider"></div>
+            <div class="lang-block lang-en">
+                <h2>❌ Packet Loss</h2>
+                <p>When a router receives a packet while processing another, it must be stored in the <span class="highlight">Input Buffer</span>. However, this buffer has a limited size.</p>
+                <p>When the buffer is full, the next packet must be dropped. The effect on the Internet network layer is that the packet needs to be resent, which may create overflow and cause more packet loss. Many theoretical studies in Queuing Theory aim to prevent this.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <footer>
+        <p>✍️ تمت الكتابه بواسطة : <span class="author">علي عدنان</span></p>
+        <p>💻 البرمجه والتنسيق بوسطة : <span class="tech">HTML</span></p>
+        <p style="margin-top: 15px; opacity: 0.7; font-size: 0.85rem;">📚 Networks - Lecture 1 | Performance</p>
+    </footer>
+
+</div>
+
+</body>
+</html>
